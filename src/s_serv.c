@@ -837,7 +837,7 @@ int send_lusers(aClient *cptr, aClient *sptr, int parc, char *parv[])
     if ((timeofday - last_stat_save) > 3600)
     {
         FILE *fp;
-        char tmp[PATH_MAX];
+        char tmp[PATH_MAX+12];
         
         last_stat_save = timeofday;
         ircsprintf(tmp, "%s/.maxclients", dpath);

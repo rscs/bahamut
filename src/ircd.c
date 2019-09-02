@@ -179,7 +179,7 @@ static void build_version(void)
 void s_die() 
 {
     FILE *fp;
-    char tmp[PATH_MAX];
+    char tmp[PATH_MAX+12];
     dump_connections(me.fd);
 #ifdef  USE_SYSLOG
     (void) syslog(LOG_CRIT, "Server killed By SIGTERM");
@@ -653,7 +653,7 @@ int
 main(int argc, char *argv[])
 {
     uid_t         uid, euid;
-    char        tmp[PATH_MAX];
+    char        tmp[PATH_MAX+12];
     FILE        *mcsfp;
     char        *conferr;
 #ifdef USE_SSL
