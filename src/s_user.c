@@ -454,7 +454,7 @@ reject_proxy(aClient *cptr, char *cmd, char *args)
  */
 char *mask_host(char *orghost, int type)
 {
-    static char newhost[HOSTLEN + 1];
+    static char newhost[LEGACY_HOSTLEN + 1];
 
     if(!type) type = uhm_type;
 
@@ -560,7 +560,7 @@ register_user(aClient *cptr, aClient *sptr, char *nick, char *username,
             spamchar = *user->host;
 #endif
                 
-        strncpyzt(user->host, sptr->sockhost, HOSTLEN + 1);
+        strncpyzt(user->host, sptr->sockhost, LEGACY_HOSTLEN + 1);
                 
         dots = 0;
         p = user->host;
@@ -610,7 +610,7 @@ register_user(aClient *cptr, aClient *sptr, char *nick, char *username,
         }
 
 #ifdef USER_HOSTMASKING
-        strncpyzt(user->mhost, mask_host(user->host,0), HOSTLEN + 1);
+        strncpyzt(user->mhost, mask_host(user->host,0), LEGACY_HOSTLEN + 1);
 #endif
         
         pwaconf = sptr->user->allow;
@@ -985,16 +985,16 @@ register_user(aClient *cptr, aClient *sptr, char *nick, char *username,
                     strcpy(sptr->user->real_oper_host, sptr->user->host);
                     strcpy(sptr->user->real_oper_username, sptr->user->username);
                     strcpy(sptr->user->real_oper_ip, sptr->hostip);
-                    strncpyzt(sptr->user->host, Staff_Address, HOSTLEN + 1);
+                    strncpyzt(sptr->user->host, Staff_Address, LEGACY_HOSTLEN + 1);
                     strncpyzt(sptr->user->username, onick, USERLEN + 1);
                     strncpyzt(sptr->username, onick, USERLEN + 1);
                     sptr->flags |= FLAGS_GOTID; /* fake ident */
 		    sptr->ip_family = AF_INET;
                     memset(&sptr->ip, 0, sizeof(sptr->ip));
                     strcpy(sptr->hostip, "0.0.0.0");
-                    strncpy(sptr->sockhost, Staff_Address, HOSTLEN + 1);
+                    strncpy(sptr->sockhost, Staff_Address, LEGACY_HOSTLEN + 1);
 #ifdef USER_HOSTMASKING
-                    strncpyzt(sptr->user->mhost, mask_host(Staff_Address,0), HOSTLEN + 1);
+                    strncpyzt(sptr->user->mhost, mask_host(Staff_Address,0), LEGACY_HOSTLEN + 1);
                     if(uhm_type > 0) sptr->umode &= ~UMODE_H; /* It's already masked anyway */
 #endif
                 }

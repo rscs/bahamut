@@ -122,7 +122,7 @@ int m_webirc(aClient *cptr, aClient *sptr, int parc, char *parv[])
     cptr->webirc_ip = MyMalloc(strlen(cptr->sockhost) + 1);
     strcpy(cptr->webirc_ip, cptr->sockhost);
 
-    if(strlen(parv[3]) > HOSTLEN)
+    if(strlen(parv[3]) > LEGACY_HOSTLEN)
         get_sockhost(cptr, parv[4]); /* IP (because host is too long) */
     else
         get_sockhost(cptr, parv[3]); /* host */

@@ -56,7 +56,11 @@
 #define TTL_SIZE   4
 #define DLEN_SIZE  2
 
+#ifdef TRANSITIONING_HOSTLEN
 #define RES_HOSTLEN 127 /* big enough to handle addresses in in6.arpa */
+#else
+#define	RES_HOSTLEN 255	/* Length of hostname.  Updated to comply with RFC1123 */
+#endif
 
 extern int  dn_expand(char *, char *, char *, char *, int);
 extern int  dn_skipname(char *, char *);

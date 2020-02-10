@@ -887,6 +887,13 @@
  */
 #define NO_LOCAL_CMODE_h
 
+/*
+ * TRANSITIONING_HOSTLEN is used to enable longer HOSTLEN and RES_HOSTLEN values for all
+ * internal buffers, but still restrict local clients to the old HOSTLEN value from releases
+ * earlier than v2.2 until all servers on the network have upgraded to v2.2 or later.
+ */
+#define TRANSITIONING_HOSTLEN
+
 /* ------------------------- END CONFIGURATION SECTION -------------------- */
 #ifdef APOLLO
 #define RESTARTING_SYSTEMCALLS

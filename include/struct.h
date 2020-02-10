@@ -110,10 +110,14 @@ typedef struct SAliasInfo AliasInfo;
 typedef struct SServicesTag ServicesTag;
 
 
+#ifdef TRANSITIONING_HOSTLEN
+#define	HOSTLEN		255	/* Length of hostname.  Updated to comply with RFC1123 */
+#else
+#define	HOSTLEN		63	/* Length of hostname.  Updated to comply with RFC1123 */
+#endif
 
-#define	HOSTLEN		63	/* Length of hostname.  Updated to */
-
-/* comply with RFC1123 */
+/* The legacy HOSTLEN value in versions < 2.2 */
+#define LEGACY_HOSTLEN 63
 
 #define HOSTIPLEN	45	/* Length of an IPv4 or IPv6 address */
 
