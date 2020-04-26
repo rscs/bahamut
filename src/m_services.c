@@ -40,8 +40,8 @@ extern int check_channelname(aClient *, unsigned char *); /* for m_aj */
 extern aChannel *get_channel(aClient *, char *, int, int *); /* for m_aj */
 extern Link *find_channel_link(Link *, aChannel *); /* for m_aj */
 extern void add_user_to_channel(aChannel *, aClient *, int); /* for m_aj */
-extern void read_motd(char *); /* defined in s_serv.c */
-extern void read_shortmotd(char *); /* defined in s_serv.c */
+extern int read_motd(char *); /* defined in s_serv.c */
+extern int read_shortmotd(char *); /* defined in s_serv.c */
 
 int svspanic = 0; /* Services panic */
 int svsnoop = 0; /* Services disabled all o:lines (off by default) */
@@ -1224,6 +1224,7 @@ int m_svsctrl(aClient *cptr, aClient *sptr, int parc, char *parv[])
     char fn_new[PATH_MAX]; /* file.conf.newsvs */
     struct stat sb;
     int cnt;
+    int rehash_failure = 0;
 
     if(!IsULine(sptr) || parc<4)
         return 0;
@@ -1308,15 +1309,15 @@ int m_svsctrl(aClient *cptr, aClient *sptr, int parc, char *parv[])
                 sendto_one(sptr, ":%s PRIVMSG %s :CONF READ %s ERROR :Couldn't stat file", me.name, parv[0], fn);
                 return 0;
             }
-            sendto_one(sptr, ":%s PRIVMSG %s :CONF %s SOF %ld %ld", me.name, parv[0], fn, sb.st_size, sb.st_mtime);
+            sendto_one(sptr, ":%s PRIVMSG %s :CONF READ %s SOF %ld %ld", me.name, parv[0], fn, sb.st_size, sb.st_mtime);
             while(fgets(line, BUFSIZE, f) != NULL)
             {
                 while((tmp = strchr(line,'\r'))) *tmp = '\0';
                 while((tmp = strchr(line,'\n'))) *tmp = '\0';
                 line_counter++;
-                sendto_one(sptr, ":%s PRIVMSG %s :CONF %s %d :%s", me.name, parv[0], fn, line_counter, line);
+                sendto_one(sptr, ":%s PRIVMSG %s :CONF READ %s %d :%s", me.name, parv[0], fn, line_counter, line);
             }
-            sendto_one(sptr, ":%s PRIVMSG %s :CONF %s EOF %d %ld %s", me.name, parv[0], fn, line_counter, sb.st_size, md5file(fn));
+            sendto_one(sptr, ":%s PRIVMSG %s :CONF READ %s EOF %d %ld %s", me.name, parv[0], fn, line_counter, sb.st_size, md5file(fn));
             fclose(f);
             line_counter = -1;
         }
@@ -1389,6 +1390,23 @@ int m_svsctrl(aClient *cptr, aClient *sptr, int parc, char *parv[])
                 {
                     sendto_realops_lev(DEBUG_LEV, "SVSCTRL CONF WRITE EOF Error: Rehash failed, will try to restore everything back to normal");
                     sendto_one(sptr, ":%s PRIVMSG %s :CONF WRITE %s EOF ERROR :Rehash failed", me.name, parv[0], fn);
+                    rehash_failure = 1;
+                }
+                if(!strcasecmp(fn, "ircd.motd") && read_motd(MOTD) != 0)
+                {
+                    sendto_realops_lev(DEBUG_LEV, "SVSCTRL CONF WRITE EOF Error: Read MOTD failed, will try to restore everything back to normal");
+                    sendto_one(sptr, ":%s PRIVMSG %s :CONF WRITE %s EOF ERROR :Rehash failed", me.name, parv[0], fn);
+                    rehash_failure = 1;
+                }
+                if(!strcasecmp(fn, "ircd.smotd") && confopts & FLAGS_SMOTD && read_shortmotd(SHORTMOTD) != 0)
+                {
+                    sendto_realops_lev(DEBUG_LEV, "SVSCTRL CONF WRITE EOF Error: Read SMOTD failed, will try to restore everything back to normal");
+                    sendto_one(sptr, ":%s PRIVMSG %s :CONF WRITE %s EOF ERROR :Rehash failed", me.name, parv[0], fn);
+                    rehash_failure = 1;
+                }
+
+                if(rehash_failure)
+                {
                     if(rename(fn,fn_new) != 0)
                     {
                         sendto_realops_lev(DEBUG_LEV, "SVSCTRL CONF WRITE EOF Error: Couldn't rename %s back to %s", fn, fn_new);
@@ -1402,7 +1420,10 @@ int m_svsctrl(aClient *cptr, aClient *sptr, int parc, char *parv[])
                         return 0;
                     }
                 }
-                sendto_one(sptr, ":%s PRIVMSG %s :CONF WRITE %s EOF OK", me.name, parv[0], fn);
+                else
+                {
+                    sendto_one(sptr, ":%s PRIVMSG %s :CONF WRITE %s EOF OK", me.name, parv[0], fn);
+                }
                 line_counter = -1;
             }
             else

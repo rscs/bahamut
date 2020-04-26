@@ -72,8 +72,8 @@ extern struct FlagList xflags_list[]; /* for m_check() */
 /* Local function prototypes */
 
 int         send_motd(aClient *, aClient *, int, char **);
-void        read_motd(char *);
-void        read_shortmotd(char *);
+int         read_motd(char *);
+int         read_shortmotd(char *);
 
 char        motd_last_changed_date[MAX_DATE_STRING]; /* enough room for date */ 
 
@@ -2249,7 +2249,7 @@ send_motd(aClient *cptr, aClient *sptr, int parc, char *parv[])
 /*
  * read_motd() - From CoMSTuD, added Aug 29, 1996
  */
-void 
+int
 read_motd(char *filename)
 {
     aMotd *temp, *last;
@@ -2272,7 +2272,7 @@ read_motd(char *filename)
         if(!forked)
                 printf("WARNING:  MOTD file %s could not be found.  "
                        "Skipping MOTD load.\n", filename);
-        return;
+        return 1;
     }
     fstat(fd, &sb);
     motd_tm = localtime(&sb.st_mtime);
@@ -2299,9 +2299,11 @@ read_motd(char *filename)
     sprintf(motd_last_changed_date, "%d/%d/%d %d:%02d", motd_tm->tm_mday,
             motd_tm->tm_mon + 1, 1900 + motd_tm->tm_year, motd_tm->tm_hour,
             motd_tm->tm_min);
+
+    return 0; /* Success */
 }
 
-void 
+int
 read_shortmotd(char *filename)
 {
     aMotd *temp, *last;
@@ -2322,7 +2324,7 @@ read_shortmotd(char *filename)
         if(!forked)
                 printf("WARNING:  sMOTD file %s could not be found.  "
                        "Skipping sMOTD load.\n", filename);
-        return;
+        return 1;
     }
     
     last = (aMotd *) NULL;
@@ -2344,6 +2346,8 @@ read_shortmotd(char *filename)
         last = temp;
     }
     close(fd);
+
+    return 0; /* Success */
 }
 
 /*

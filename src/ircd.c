@@ -99,8 +99,8 @@ static void     io_loop();
 /* externally needed functions */
 
 extern void     init_fdlist(fdlist *);      /* defined in fdlist.c */
-extern void     read_motd(char *);          /* defined in s_serv.c */
-extern void     read_shortmotd(char *);     /* defined in s_serv.c */
+extern int      read_motd(char *);          /* defined in s_serv.c */
+extern int      read_shortmotd(char *);     /* defined in s_serv.c */
 extern void     read_help(char *);          /* defined in s_serv.c */
 extern void     init_globals();
 extern int      klinestore_init(int);    /* defined in klines.c */
@@ -1177,7 +1177,7 @@ void io_loop()
         if (dorehash) 
         {
             (void) rehash(&me, &me, 1);
-        (void) read_motd(MOTD);
+            (void) read_motd(MOTD);
             dorehash = 0;
         }
         /*
